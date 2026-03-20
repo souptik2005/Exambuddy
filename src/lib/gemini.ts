@@ -1,52 +1,73 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY!;
+const genAI = new GoogleGenerativeAI(apiKey);
 
-if (!apiKey) {
-  console.warn("GEMINI_API_KEY is not defined in the environment variables.");
-}
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
-
-export async function generateExamContent(text: string) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }, { apiVersion: "v1" });
+export async function generateExamContent(
+  text: string,
+  existingQuestions: any[] = [],
+  existingMcqs: any[] = []
+) {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash-lite",
+  });
 
   const prompt = `
-    You are an expert educator. Based on the provided text extracted from a study material, generate the following:
-    1. A list of 10-15 "Important Questions" with detailed answers.
-    2. A list of 10-15 "Multiple Choice Questions (MCQs)" with 4 options and the correct answer.
+You are an expert educator.
 
-    Text:
-    ${text.substring(0, 10000)} // Limiting text to 10k characters for stability
+STRICT RULES:
+- Output ONLY valid JSON
+- No markdown, no explanation
+- Avoid repetition
+- Focus ONLY on most important exam questions
 
-    Please format the output as a JSON object with the following structure:
+Generate:
+1. 8 VERY IMPORTANT Questions with answers
+2. 8 HIGH-QUALITY MCQs
+
+FORMAT:
+{
+  "importantQuestions": [
+    { "question": "string", "answer": "string" }
+  ],
+  "mcqs": [
     {
-      "importantQuestions": [
-        { "question": "...", "answer": "..." }
-      ],
-      "mcqs": [
-        { "question": "...", "options": ["...", "...", "...", "..."], "answer": "..." }
-      ]
+      "question": "string",
+      "options": ["A", "B", "C", "D"],
+      "answer": "FULL correct option text"
     }
-  `;
+  ]
+}
+
+TEXT:
+${text.substring(0, 8000)}
+`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     let responseText = response.text();
-    
-    console.log("Raw AI Response Text:", responseText);
-    
-    // Clean up JSON if necessary (sometimes AI includes markdown backticks)
-    if (responseText.includes("```json")) {
-      responseText = responseText.split("```json")[1].split("```")[0];
-    } else if (responseText.includes("```")) {
-      responseText = responseText.split("```")[1].split("```")[0];
+
+    // clean markdown if present
+    responseText = responseText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      const match = responseText.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+
+      throw new Error("Invalid JSON");
     }
-    
-    return JSON.parse(responseText.trim());
   } catch (error) {
-    console.error("Error generating exam content:", error);
-    throw new Error(`Failed to generate content from the PDF: ${error}`);
+    console.error("AI Error:", error);
+
+    return {
+      importantQuestions: [],
+      mcqs: [],
+    };
   }
 }

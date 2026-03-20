@@ -41,6 +41,71 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
         </button>
       </div>
 
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => {
+            const printContent = `
+              <html>
+                <head>
+                  <title>ExamBuddy Study Guide</title>
+                  <style>
+                    body { font-family: sans-serif; margin: 20px; }
+                    h1 { color: #4f46e5; }
+                    h3 { color: #4f46e5; margin-top: 20px; }
+                    ul { list-style-type: none; padding: 0; }
+                    li { margin-bottom: 10px; }
+                    strong { font-weight: bold; }
+                    .question-block { border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+                    .answer-block { background-color: #eef2ff; padding: 10px; border-radius: 6px; margin-top: 10px; }
+                    .mcq-option { border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 5px; }
+                    .mcq-correct { background-color: #dcfce7; border-color: #bbf7d0; }
+                  </style>
+                </head>
+                <body>
+                  <h1>ExamBuddy Study Guide</h1>
+                  <h2>Important Questions</h2>
+                  ${results.importantQuestions.map((q, idx) => `
+                    <div class="question-block">
+                      <h3>${idx + 1}. ${q.question}</h3>
+                      <div class="answer-block">${formatAnswer(q.answer)}</div>
+                    </div>
+                  `).join('')}
+                  <h2>Multiple Choice Questions (MCQs)</h2>
+                  ${results.mcqs.map((m, idx) => `
+                    <div class="question-block">
+                      <h3>${idx + 1}. ${m.question}</h3>
+                      <div>
+                        ${m.options.map((opt, oIdx) => `
+                          <div class="mcq-option ${opt === m.answer ? 'mcq-correct' : ''}">
+                            ${opt}
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  `).join('')}
+                </body>
+              </html>
+            `;
+
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+              printWindow.document.write(printContent);
+              printWindow.document.close();
+              printWindow.print();
+            }
+          }}
+          className="px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
+        >
+          <span>Print Answers</span>
+        </button>
+        <button
+          onClick={() => console.log("More questions clicked!")}
+          className="px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all bg-purple-600 text-white shadow-lg hover:bg-purple-700 ml-4"
+        >
+          <span>More Questions</span>
+        </button>
+      </div>
+
       <div className="space-y-6">
         {activeTab === "questions" ? (
           results.importantQuestions.map((q, idx) => (

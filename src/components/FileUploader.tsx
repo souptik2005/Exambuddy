@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Upload, Loader2, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { processText, ExamContent } from "@/app/actions";
+import { createWorker } from 'tesseract.js';
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 interface FileUploaderProps {
@@ -14,6 +15,7 @@ export function FileUploader({ onResults }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.5.207/build/pdf.worker.min.mjs`;
@@ -34,21 +36,34 @@ export function FileUploader({ onResults }: FileUploaderProps) {
 
     setLoading(true);
     setError(null);
+    setProgress(0);
 
     try {
       const reader = new FileReader();
       reader.onload = async (event) => {
         if (event.target?.result) {
           const uint8Array = new Uint8Array(event.target.result as ArrayBuffer);
-          const doc = await getDocument(uint8Array).promise;
-          let text = "";
-          for (let i = 1; i <= doc.numPages; i++) {
-            const page = await doc.getPage(i);
-            const content = await page.getTextContent();
-            text += content.items.map((item: any) => item.str).join(" ");
+          const pdf = await getDocument(uint8Array).promise;
+          const worker = await createWorker('eng');
+          let fullText = "";
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement("canvas");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            const context = canvas.getContext("2d");
+            if (context) {
+              await page.render({ canvasContext: context, viewport: viewport }).promise;
+              const { data: { text } } = await worker.recognize(canvas);
+              fullText += text + "\n";
+            }
+            setProgress(Math.round((i / pdf.numPages) * 100));
           }
-          const results = await processText(text);
-          console.log("Received results:", results);
+
+          await worker.terminate();
+          const results = await processText(fullText);
           onResults(results);
         }
       };
@@ -56,7 +71,7 @@ export function FileUploader({ onResults }: FileUploaderProps) {
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      // Don't set loading to false here, as the FileReader is async
     }
   };
 
@@ -85,6 +100,15 @@ export function FileUploader({ onResults }: FileUploaderProps) {
           </div>
         </div>
       </div>
+
+      {loading && (
+        <div className="mt-4">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+          </div>
+          <p className="text-center text-sm text-gray-500 mt-2">Processing... {progress}%</p>
+        </div>
+      )}
 
       <AnimatePresence>
         {error && (
