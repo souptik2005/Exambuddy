@@ -176,7 +176,7 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                       {idx + 1}
                     </span>
                     <h3 className="flex-1 font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
-                      {q.question || "No Question"}
+                      {q.question || q.q || "No Question"}
                     </h3>
                   </div>
                   
@@ -204,7 +204,7 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                         <div
                           className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg"
                           dangerouslySetInnerHTML={{
-                            __html: formatAnswer(q.answer || "No Answer"),
+                            __html: formatAnswer(q.answer || q.a || "No Answer"),
                           }}
                         />
                       </div>
@@ -235,14 +235,14 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                     {idx + 1}
                   </span>
                   <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
-                    {m.question || "No Question"}
+                    {m.question || m.q || "No Question"}
                   </h3>
                 </div>
 
                 <div className="grid gap-4">
-                  {(m.options || []).map((opt: string, i: number) => {
+                  {(m.options || m.choices || []).map((opt: string, i: number) => {
                     const isSelected = selectedMcqOptions[idx] === opt;
-                    const isCorrect = opt === m.answer;
+                    const isCorrect = opt === (m.answer || m.a);
                     const showFeedback = selectedMcqOptions[idx] !== undefined;
 
                     let bgClass = "bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700";
@@ -288,7 +288,7 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                         <Lightbulb className="text-indigo-600 dark:text-indigo-400 shrink-0" size={20} />
                         <p className="text-slate-700 dark:text-slate-300">
                           <span className="font-bold text-slate-900 dark:text-slate-100">Correct Answer: </span>
-                          <span className="font-semibold text-indigo-700 dark:text-indigo-400">{m.answer}</span>
+                          <span className="font-semibold text-indigo-700 dark:text-indigo-400">{m.answer || m.a}</span>
                         </p>
                       </div>
                     </motion.div>

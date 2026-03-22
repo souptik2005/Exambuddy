@@ -54,9 +54,13 @@ export async function processText(
 
     for (const result of results) {
       if (result.status === "fulfilled" && result.value) {
-        console.log("Chunk result summary:", result.value.importantQuestions?.length, "questions,", result.value.mcqs?.length, "MCQs");
-        allQuestions = mergeUnique(allQuestions, result.value.importantQuestions);
-        allMcqs = mergeUnique(allMcqs, result.value.mcqs);
+        const val = result.value;
+        const questions = val.importantQuestions || val.questions || [];
+        const mcqs = val.mcqs || val.mcq || [];
+        
+        console.log("Chunk result summary:", questions.length, "questions,", mcqs.length, "MCQs");
+        allQuestions = mergeUnique(allQuestions, questions);
+        allMcqs = mergeUnique(allMcqs, mcqs);
       } else if (result.status === "rejected") {
         const error = result.reason;
         if (error.message === "API_RATE_LIMIT") {
@@ -117,12 +121,13 @@ function splitText(text: string, size: number) {
 
 // Remove duplicates
 function mergeUnique(existing: any[], incoming: any[]) {
-  const seen = new Set(existing.map((q) => q.question));
+  const seen = new Set(existing.map((q) => (q.question || q.q || "").toLowerCase().trim()));
 
   for (const item of incoming || []) {
-    if (!seen.has(item.question)) {
+    const qText = (item.question || item.q || "").toLowerCase().trim();
+    if (qText && !seen.has(qText)) {
       existing.push(item);
-      seen.add(item.question);
+      seen.add(qText);
     }
   }
 

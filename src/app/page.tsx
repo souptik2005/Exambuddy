@@ -6,6 +6,7 @@ import { FileUploader } from "@/components/FileUploader";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { TopicExplorer } from "@/components/TopicExplorer";
 import { HistorySidebar } from "@/components/HistorySidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ExamContent, HistoryItem } from "@/app/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCcw, FileText, Search, History, Menu, Sparkles, Zap } from "lucide-react";
@@ -93,6 +94,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {results ? (
               <button
                 onClick={handleReset}

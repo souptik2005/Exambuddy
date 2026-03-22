@@ -113,6 +113,37 @@ FORMAT:
   }
 }
 
+/**
+ * Normalizes AI response to ensure it has the correct keys and structure
+ */
+function normalizeResponse(parsed: any) {
+  const result: any = {
+    importantQuestions: [],
+    mcqs: []
+  };
+
+  // 1. Handle Questions
+  const rawQuestions = parsed.importantQuestions || parsed.questions || parsed.important_questions || [];
+  if (Array.isArray(rawQuestions)) {
+    result.importantQuestions = rawQuestions.map((q: any) => ({
+      question: q.question || q.q || "No Question",
+      answer: q.answer || q.a || "No Answer"
+    }));
+  }
+
+  // 2. Handle MCQs
+  const rawMcqs = parsed.mcqs || parsed.mcq || [];
+  if (Array.isArray(rawMcqs)) {
+    result.mcqs = rawMcqs.map((m: any) => ({
+      question: m.question || m.q || "No Question",
+      options: m.options || m.choices || m.o || [],
+      answer: m.answer || m.a || ""
+    }));
+  }
+
+  return result;
+}
+
 export async function generateExamContent(
   text: string,
   existingQuestions: any[] = [],
@@ -163,17 +194,15 @@ ${text.substring(0, 15000)}
 
     try {
       const parsed = JSON.parse(jsonMatch[0].replace(/\\n/g, " ").replace(/\\r/g, " "));
-      if (!parsed.importantQuestions) parsed.importantQuestions = [];
-      if (!parsed.mcqs) parsed.mcqs = [];
-      return parsed;
+      return normalizeResponse(parsed);
     } catch (innerParseError) {
       console.warn("JSON parse failed, trying aggressive cleaning...");
-      // Try cleaning common AI artifacts
       const cleaned = jsonMatch[0]
-        .replace(/,\s*([\}\]])/g, '$1') // remove trailing commas
-        .replace(/\\"/g, '"') // fix escaped quotes
-        .replace(/\n/g, ' '); // remove newlines
-      return JSON.parse(cleaned);
+        .replace(/,\s*([\}\]])/g, '$1')
+        .replace(/\\"/g, '"')
+        .replace(/\n/g, ' ');
+      const parsed = JSON.parse(cleaned);
+      return normalizeResponse(parsed);
     }
   } catch (error: any) {
     const isRateLimit = error.message?.includes("429") || error.message?.toLowerCase().includes("quota");
@@ -195,9 +224,7 @@ ${text.substring(0, 15000)}
       if (!jsonMatch) throw new Error("No JSON structure in fallback");
       
       const parsed = JSON.parse(jsonMatch[0].replace(/\\n/g, " ").replace(/\\r/g, " "));
-      if (!parsed.importantQuestions) parsed.importantQuestions = [];
-      if (!parsed.mcqs) parsed.mcqs = [];
-      return parsed;
+      return normalizeResponse(parsed);
     } catch (fallbackError: any) {
       const isFallbackRateLimit = fallbackError.message?.includes("429") || fallbackError.message?.toLowerCase().includes("quota");
       if (isFallbackRateLimit) {
@@ -214,9 +241,7 @@ ${text.substring(0, 15000)}
         if (!jsonMatch) throw new Error("No JSON in last resort");
         
         const finalJson = JSON.parse(jsonMatch[0].replace(/\\n/g, " ").replace(/\\r/g, " "));
-        if (!finalJson.importantQuestions) finalJson.importantQuestions = [];
-        if (!finalJson.mcqs) finalJson.mcqs = [];
-        return finalJson;
+        return normalizeResponse(finalJson);
       } catch (lastError: any) {
         console.error("All AI models failed:", lastError.message);
         
