@@ -1,164 +1,307 @@
 "use client";
 
 import { useState } from "react";
-import { ExamContent } from "@/app/actions";
-import { CheckCircle2, Circle, GraduationCap, ListChecks } from "lucide-react";
-import { motion } from "framer-motion";
-
+import { CheckCircle2, Circle, GraduationCap, ListChecks, Lightbulb, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatAnswer } from "@/lib/format";
 
 interface ResultsDisplayProps {
-  results: ExamContent;
+  results: any;
+  onBack?: () => void;
 }
 
-export function ResultsDisplay({ results }: ResultsDisplayProps) {
+export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
+  console.log("ResultsDisplay RENDER WITH:", results);
   const [activeTab, setActiveTab] = useState<"questions" | "mcqs">("questions");
+  const [showAnswers, setShowAnswers] = useState<{ [key: string]: boolean }>({});
+  const [selectedMcqOptions, setSelectedMcqOptions] = useState<{ [key: number]: string }>({});
+
+  const toggleAnswer = (idx: number) => {
+    setShowAnswers((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
+  };
+
+  const handleMcqSelect = (idx: number, option: string) => {
+    setSelectedMcqOptions((prev) => ({
+      ...prev,
+      [idx]: option,
+    }));
+  };
+
+  // 🔥 Handle different possible API structures
+  const importantQuestions =
+    results?.importantQuestions ||
+    results?.questions ||
+    [];
+
+  const mcqs =
+    results?.mcqs ||
+    results?.mcq ||
+    [];
+
+  // 🔥 Debug (you can remove later)
+  console.log("RESULTS:", results);
+
+  if (!results) {
+    return (
+      <div className="text-center py-10 text-gray-500">
+        No data received
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-16 px-4">
-      <div className="flex justify-center space-x-4 mb-10">
-        <button
-          onClick={() => setActiveTab("questions")}
-          className={`px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all ${
-            activeTab === "questions"
-              ? "bg-indigo-600 text-white shadow-lg"
-              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm"
-          }`}
-        >
-          <GraduationCap size={20} />
-          <span>Important Questions</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("mcqs")}
-          className={`px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all ${
-            activeTab === "mcqs"
-              ? "bg-indigo-600 text-white shadow-lg"
-              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm"
-          }`}
-        >
-          <ListChecks size={20} />
-          <span>MCQs</span>
-        </button>
+
+      {/* 🔹 Tabs */}
+      <div className="flex justify-center mb-16">
+        <div className="p-1.5 rounded-2xl glass-card flex gap-1.5 shadow-md">
+          <button
+            onClick={() => setActiveTab("questions")}
+            className={`px-10 py-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all ${
+              activeTab === "questions"
+                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+            }`}
+          >
+            <GraduationCap size={22} />
+            <span>Questions</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("mcqs")}
+            className={`px-10 py-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all ${
+              activeTab === "mcqs"
+                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+            }`}
+          >
+            <ListChecks size={22} />
+            <span>MCQs</span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex justify-center mt-8">
+      {/* 🔹 Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-md border border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 active:scale-95"
+          >
+            <ArrowLeft size={20} />
+            <span>Go Back</span>
+          </button>
+        )}
         <button
           onClick={() => {
             const printContent = `
               <html>
                 <head>
-                  <title>ExamBuddy Study Guide</title>
+                  <title>My Study Guide - Exam Buddy</title>
                   <style>
-                    body { font-family: sans-serif; margin: 20px; }
-                    h1 { color: #4f46e5; }
-                    h3 { color: #4f46e5; margin-top: 20px; }
-                    ul { list-style-type: none; padding: 0; }
-                    li { margin-bottom: 10px; }
-                    strong { font-weight: bold; }
-                    .question-block { border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-                    .answer-block { background-color: #eef2ff; padding: 10px; border-radius: 6px; margin-top: 10px; }
-                    .mcq-option { border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 5px; }
-                    .mcq-correct { background-color: #dcfce7; border-color: #bbf7d0; }
+                    body { font-family: system-ui, -apple-system, sans-serif; color: #1e293b; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+                    h1 { color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+                    h2 { color: #6366f1; margin-top: 30px; border-left: 4px solid #4f46e5; padding-left: 15px; }
+                    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+                    .question { font-weight: 800; color: #0f172a; margin-bottom: 10px; font-size: 1.1em; }
+                    .answer { color: #334155; }
+                    .mcq-option { margin-left: 20px; color: #475569; }
+                    .footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 0.8em; }
                   </style>
                 </head>
                 <body>
-                  <h1>ExamBuddy Study Guide</h1>
-                  <h2>Important Questions</h2>
-                  ${results.importantQuestions.map((q, idx) => `
-                    <div class="question-block">
-                      <h3>${idx + 1}. ${q.question}</h3>
-                      <div class="answer-block">${formatAnswer(q.answer)}</div>
-                    </div>
-                  `).join('')}
-                  <h2>Multiple Choice Questions (MCQs)</h2>
-                  ${results.mcqs.map((m, idx) => `
-                    <div class="question-block">
-                      <h3>${idx + 1}. ${m.question}</h3>
-                      <div>
-                        ${m.options.map((opt, oIdx) => `
-                          <div class="mcq-option ${opt === m.answer ? 'mcq-correct' : ''}">
-                            ${opt}
-                          </div>
-                        `).join('')}
+                  <h1>My Personal Study Guide</h1>
+                  <p>Generated by your Exam Buddy AI on ${new Date().toLocaleDateString()}</p>
+
+                  ${importantQuestions.length > 0 ? `
+                    <h2>Important Questions & Answers</h2>
+                    ${importantQuestions.map((q: any, i: number) => `
+                      <div class="card">
+                        <div class="question">${i + 1}. ${q.question}</div>
+                        <div class="answer">${formatAnswer(q.answer)}</div>
                       </div>
-                    </div>
-                  `).join('')}
+                    `).join("")}
+                  ` : ""}
+
+                  ${mcqs.length > 0 ? `
+                    <h2>Practice MCQs</h2>
+                    ${mcqs.map((m: any, i: number) => `
+                      <div class="card">
+                        <div class="question">${i + 1}. ${m.question}</div>
+                        ${m.options?.map((opt: string) => `<div class="mcq-option">• ${opt}</div>`).join("")}
+                        <div class="answer" style="margin-top:10px; font-weight:bold; color:#4f46e5;">Correct Answer: ${m.answer}</div>
+                      </div>
+                    `).join("")}
+                  ` : ""}
+
+                  <div class="footer">Built with ❤️ by Exam Buddy</div>
                 </body>
               </html>
             `;
 
-            const printWindow = window.open('', '_blank');
-            if (printWindow) {
-              printWindow.document.write(printContent);
-              printWindow.document.close();
-              printWindow.print();
+            const w = window.open("", "_blank");
+            if (w) {
+              w.document.write(printContent);
+              w.document.close();
+              w.print();
             }
           }}
-          className="px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
+          className="w-full sm:w-auto px-8 py-4 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl transition-all hover:scale-105 active:scale-95"
         >
-          <span>Print Answers</span>
-        </button>
-        <button
-          onClick={() => console.log("More questions clicked!")}
-          className="px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transition-all bg-purple-600 text-white shadow-lg hover:bg-purple-700 ml-4"
-        >
-          <span>More Questions</span>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Save as PDF / Print</span>
         </button>
       </div>
 
-      <div className="space-y-6">
-        {activeTab === "questions" ? (
-          results.importantQuestions.map((q, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800"
-            >
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
-                <span className="text-indigo-600 mr-2">{idx + 1}.</span> {q.question}
-              </h3>
-              <div
-                className="text-slate-600 dark:text-slate-400 leading-relaxed bg-indigo-50/50 dark:bg-indigo-950/20 p-4 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30"
-                dangerouslySetInnerHTML={{ __html: formatAnswer(q.answer) }}
-              />
-            </motion.div>
-          ))
-        ) : (
-          results.mcqs.map((m, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800"
-            >
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-6">
-                <span className="text-indigo-600 mr-2">{idx + 1}.</span> {m.question}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {m.options.map((opt, oIdx) => (
-                  <div
-                    key={oIdx}
-                    className={`p-4 rounded-xl border flex items-center space-x-3 ${
-                      opt === m.answer
-                        ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/50 text-green-700 dark:text-green-300"
-                        : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+      {/* 🔹 Content */}
+      <div className="max-w-3xl mx-auto space-y-8">
+
+        {/* QUESTIONS */}
+        {activeTab === "questions" &&
+          (importantQuestions.length > 0 ? (
+            importantQuestions.map((q: any, idx: number) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="group p-8 glass-card rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
+                      {idx + 1}
+                    </span>
+                    <h3 className="flex-1 font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
+                      {q.question || "No Question"}
+                    </h3>
+                  </div>
+                  
+                  <button
+                    onClick={() => toggleAnswer(idx)}
+                    className={`self-start px-6 py-2 rounded-xl font-bold text-sm transition-all ${
+                      showAnswers[idx] 
+                        ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400" 
+                        : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100"
                     }`}
                   >
-                    {opt === m.answer ? (
-                      <CheckCircle2 size={20} className="shrink-0" />
-                    ) : (
-                      <Circle size={20} className="shrink-0 opacity-20" />
-                    )}
-                    <span>{opt}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))
-        )}
+                    {showAnswers[idx] ? "Hide Answer" : "Reveal Answer"}
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {showAnswers[idx] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <div
+                          className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg"
+                          dangerouslySetInnerHTML={{
+                            __html: formatAnswer(q.answer || "No Answer"),
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))
+          ) : (
+            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+              <p className="text-slate-500 dark:text-slate-400 font-medium">No questions found. Try another file!</p>
+            </div>
+          ))}
+
+        {/* MCQs */}
+        {activeTab === "mcqs" &&
+          (mcqs.length > 0 ? (
+            mcqs.map((m: any, idx: number) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="p-8 glass-card rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+              >
+                <div className="flex items-start gap-4 mb-8">
+                  <span className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
+                    {idx + 1}
+                  </span>
+                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
+                    {m.question || "No Question"}
+                  </h3>
+                </div>
+
+                <div className="grid gap-4">
+                  {(m.options || []).map((opt: string, i: number) => {
+                    const isSelected = selectedMcqOptions[idx] === opt;
+                    const isCorrect = opt === m.answer;
+                    const showFeedback = selectedMcqOptions[idx] !== undefined;
+
+                    let bgClass = "bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700";
+                    if (showFeedback) {
+                      if (isCorrect) {
+                        bgClass = "bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400";
+                      } else if (isSelected) {
+                        bgClass = "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400";
+                      }
+                    } else if (isSelected) {
+                      bgClass = "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-400";
+                    }
+
+                    return (
+                      <button
+                        key={i}
+                        disabled={showFeedback}
+                        onClick={() => handleMcqSelect(idx, opt)}
+                        className={`group p-5 border rounded-2xl flex items-center justify-between text-left transition-all transform active:scale-[0.98] ${bgClass}`}
+                      >
+                        <span className="font-semibold text-lg">{opt}</span>
+                        
+                        {showFeedback && (
+                          isCorrect ? (
+                            <CheckCircle2 size={24} className="shrink-0" />
+                          ) : isSelected ? (
+                            <Circle size={24} className="shrink-0" />
+                          ) : null
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <AnimatePresence>
+                  {selectedMcqOptions[idx] && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="mt-6 p-6 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Lightbulb className="text-indigo-600 dark:text-indigo-400 shrink-0" size={20} />
+                        <p className="text-slate-700 dark:text-slate-300">
+                          <span className="font-bold text-slate-900 dark:text-slate-100">Correct Answer: </span>
+                          <span className="font-semibold text-indigo-700 dark:text-indigo-400">{m.answer}</span>
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))
+          ) : (
+            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+              <p className="text-slate-500 dark:text-slate-400 font-medium">No MCQs available. Try another file!</p>
+            </div>
+          ))}
+
       </div>
     </div>
   );
