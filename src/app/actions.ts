@@ -11,16 +11,35 @@ export async function getTopicInfo(topic: string): Promise<TopicSummary | null> 
     return await generateTopicSummary(topic);
   } catch (error: any) {
     console.error("getTopicInfo Error:", error.message);
+    
+    if (error.message.includes("GEMINI_API_KEY is not defined")) {
+      return {
+        topic: "Configuration Missing",
+        summary: "I'm missing my API key!",
+        detailedExplanation: "The GEMINI_API_KEY environment variable is not set in the Vercel dashboard. Please add it to your project settings.",
+        keyPoints: ["Check Vercel Settings", "Add GEMINI_API_KEY", "Redeploy project"],
+        youtubeLinks: []
+      };
+    }
+
     if (error.message === "API_RATE_LIMIT") {
       return {
         topic: "API Rate Limit Reached",
         summary: "I've reached my daily limit! Please try again in a few minutes.",
-        detailedExplanation: "API limit reached.",
-        keyPoints: [],
+        detailedExplanation: "The Google Gemini API has a usage quota. If you are using the free tier, this can happen quite often. Wait a moment and try again.",
+        keyPoints: ["Wait 1-2 minutes", "Try a different topic", "Check API quota"],
         youtubeLinks: []
       };
     }
-    return null;
+    
+    // Generic error fallback with information
+    return {
+      topic: "Search Error",
+      summary: "I had some trouble searching for this topic.",
+      detailedExplanation: `Encountered an error: ${error.message}. This might be due to a server timeout or a temporary issue with the AI service.`,
+      keyPoints: ["Try a simpler topic", "Refresh the page", "Check your connection"],
+      youtubeLinks: []
+    };
   }
 }
 
@@ -91,6 +110,16 @@ export async function processText(
 
   } catch (error: any) {
     console.error("Server Action Error:", error.message);
+
+    if (error.message.includes("GEMINI_API_KEY is not defined")) {
+      return {
+        importantQuestions: [
+          { question: "Configuration Error", answer: "The GEMINI_API_KEY environment variable is missing from your Vercel settings. Please add it to enable AI processing." },
+          { question: "How to fix this?", answer: "Go to your project settings in the Vercel dashboard, add the environment variable, and redeploy." }
+        ],
+        mcqs: [],
+      };
+    }
 
     if (error.message === "API_RATE_LIMIT") {
       return {

@@ -30,6 +30,10 @@ export function TopicExplorer() {
       if (data) {
         if (data.topic === "API Rate Limit Reached") {
           setError("I'm working too fast! Please wait a minute before searching again.");
+        } else if (data.topic === "Configuration Missing") {
+          setError("I'm missing my API key! Please check your Vercel environment variables.");
+        } else if (data.topic === "Search Error") {
+          setError("I had some trouble searching for this. Please try a different topic.");
         } else {
           setResult(data);
         }
@@ -56,16 +60,16 @@ export function TopicExplorer() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="glass-card rounded-[2.5rem] p-12 shadow-2xl mb-10 transform transition-all hover:shadow-indigo-500/10"
+            className="glass-card rounded-[2.5rem] p-12 shadow-2xl mb-10 transform transition-all"
           >
             <div className="flex flex-col items-center text-center mb-8">
-              <div className="p-4 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl text-indigo-600 dark:text-indigo-400 mb-4">
+              <div className="p-4 bg-primary/10 rounded-2xl text-primary-foreground mb-4">
                 <Search size={32} />
               </div>
-              <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+              <h3 className="text-3xl font-black text-foreground">
                 Curious about something?
               </h3>
-              <p className="text-slate-500 dark:text-slate-400 mt-2">
+              <p className="text-muted-foreground mt-2 font-medium">
                 Ask me anything, and I'll create a quick study guide for you.
               </p>
             </div>
@@ -75,13 +79,13 @@ export function TopicExplorer() {
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="Topic name..."
-                className="flex-1 px-6 py-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-all"
+                placeholder="Topic name (e.g. Photosynthesis)..."
+                className="flex-1 px-6 py-4 rounded-xl border border-border bg-muted text-foreground focus:outline-none focus:border-primary/50 transition-all font-medium"
               />
               <button
                 type="submit"
                 disabled={loading || !topic.trim()}
-                className="px-10 py-4 bg-slate-900 dark:bg-slate-100 disabled:opacity-30 text-white dark:text-slate-900 rounded-xl font-black text-sm uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                className="px-10 py-4 bg-primary disabled:opacity-30 text-primary-foreground rounded-xl font-black text-sm uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg shadow-primary/20"
               >
                 {loading ? (
                   <>
@@ -100,7 +104,7 @@ export function TopicExplorer() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="mt-6 p-4 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl flex items-center gap-3 text-sm"
+                  className="mt-6 p-4 bg-accent/50 text-accent-foreground rounded-xl flex items-center gap-3 text-sm font-bold border border-accent"
                 >
                   <AlertCircle size={18} />
                   <span>{error}</span>
@@ -118,26 +122,26 @@ export function TopicExplorer() {
             <div className="flex items-center justify-between gap-4 mb-4">
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all active:scale-95"
+                className="flex items-center gap-2 px-6 py-3 bg-background text-muted-foreground font-bold rounded-2xl border border-border shadow-sm hover:shadow-md transition-all active:scale-95"
               >
                 <ArrowLeft size={20} />
                 <span>Search again</span>
               </button>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
+              <h3 className="text-2xl font-black text-foreground tracking-tight">
                 {result.topic}
               </h3>
               <div className="w-32 hidden sm:block" />
             </div>
 
             {/* Basic Summary Section */}
-            <div className="glass-card rounded-[2rem] p-8 shadow-sm">
+            <div className="glass-card rounded-[2rem] p-8 shadow-sm border border-border">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl text-indigo-600 dark:text-indigo-400">
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary-foreground">
                   <BookOpen size={24} />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-slate-50">Basic Summary</h4>
+                <h4 className="text-xl font-bold text-foreground">Basic Summary</h4>
               </div>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg font-medium">
+              <p className="text-foreground leading-relaxed text-lg font-medium opacity-90">
                 {result.summary}
               </p>
             </div>

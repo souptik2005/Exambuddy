@@ -53,17 +53,17 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-16 px-4">
+    <div className="max-w-4xl mx-auto py-12 px-4">
 
       {/* 🔹 Tabs */}
-      <div className="flex justify-center mb-16">
-        <div className="p-1.5 rounded-2xl glass-card flex gap-1.5 shadow-md">
+      <div className="flex justify-center mb-12">
+        <div className="p-1.5 rounded-[2rem] glass-card flex gap-1.5 shadow-lg border border-border">
           <button
             onClick={() => setActiveTab("questions")}
-            className={`px-10 py-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all ${
+            className={`px-10 py-4 rounded-2xl text-base font-black flex items-center gap-3 transition-all ${
               activeTab === "questions"
-                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <GraduationCap size={22} />
@@ -72,10 +72,10 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
 
           <button
             onClick={() => setActiveTab("mcqs")}
-            className={`px-10 py-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all ${
+            className={`px-10 py-4 rounded-2xl text-base font-black flex items-center gap-3 transition-all ${
               activeTab === "mcqs"
-                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <ListChecks size={22} />
@@ -89,7 +89,7 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
         {onBack && (
           <button
             onClick={onBack}
-            className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-md border border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 active:scale-95"
+            className="w-full sm:w-auto px-8 py-4 bg-background text-muted-foreground rounded-2xl font-bold flex items-center justify-center gap-3 shadow-sm border border-border transition-all hover:bg-muted active:scale-95"
           >
             <ArrowLeft size={20} />
             <span>Go Back</span>
@@ -102,14 +102,14 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                 <head>
                   <title>My Study Guide - Exam Buddy</title>
                   <style>
-                    body { font-family: system-ui, -apple-system, sans-serif; color: #1e293b; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-                    h1 { color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-                    h2 { color: #6366f1; margin-top: 30px; border-left: 4px solid #4f46e5; padding-left: 15px; }
-                    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-                    .question { font-weight: 800; color: #0f172a; margin-bottom: 10px; font-size: 1.1em; }
-                    .answer { color: #334155; }
-                    .mcq-option { margin-left: 20px; color: #475569; }
-                    .footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 0.8em; }
+                    body { font-family: system-ui, -apple-system, sans-serif; color: #334155; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; background: #fdfdfd; }
+                    h1 { color: #312e81; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; font-weight: 900; }
+                    h2 { color: #4338ca; margin-top: 30px; border-left: 4px solid #a5b4fc; padding-left: 15px; font-weight: 800; }
+                    .card { background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+                    .question { font-weight: 900; color: #1e293b; margin-bottom: 12px; font-size: 1.2em; }
+                    .answer { color: #475569; font-weight: 500; }
+                    .mcq-option { margin-left: 20px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
+                    .footer { margin-top: 60px; text-align: center; color: #94a3b8; font-size: 0.8em; font-weight: 600; }
                   </style>
                 </head>
                 <body>
@@ -120,8 +120,8 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                     <h2>Important Questions & Answers</h2>
                     ${importantQuestions.map((q: any, i: number) => `
                       <div class="card">
-                        <div class="question">${i + 1}. ${q.question}</div>
-                        <div class="answer">${formatAnswer(q.answer)}</div>
+                        <div class="question">${i + 1}. ${q.question || q.q}</div>
+                        <div class="answer">${formatAnswer(q.answer || q.a)}</div>
                       </div>
                     `).join("")}
                   ` : ""}
@@ -130,9 +130,9 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                     <h2>Practice MCQs</h2>
                     ${mcqs.map((m: any, i: number) => `
                       <div class="card">
-                        <div class="question">${i + 1}. ${m.question}</div>
-                        ${m.options?.map((opt: string) => `<div class="mcq-option">• ${opt}</div>`).join("")}
-                        <div class="answer" style="margin-top:10px; font-weight:bold; color:#4f46e5;">Correct Answer: ${m.answer}</div>
+                        <div class="question">${i + 1}. ${m.question || m.q}</div>
+                        ${(m.options || m.choices || []).map((opt: string) => `<div class="mcq-option">• ${opt}</div>`).join("")}
+                        <div class="answer" style="margin-top:12px; font-weight:900; color:#4338ca;">Correct Answer: ${m.answer || m.a}</div>
                       </div>
                     `).join("")}
                   ` : ""}
@@ -149,7 +149,7 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
               w.print();
             }
           }}
-          className="w-full sm:w-auto px-8 py-4 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl transition-all hover:scale-105 active:scale-95"
+          className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
           <span>Save as PDF / Print</span>
@@ -168,24 +168,24 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="group p-8 glass-card rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                className="group p-8 glass-card rounded-[2.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border border-border"
               >
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
+                <div className="flex flex-col gap-5">
+                  <div className="flex items-start justify-between gap-5">
+                    <span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">
                       {idx + 1}
                     </span>
-                    <h3 className="flex-1 font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
+                    <h3 className="flex-1 font-black text-2xl text-foreground leading-tight pt-1 tracking-tight">
                       {q.question || q.q || "No Question"}
                     </h3>
                   </div>
                   
                   <button
                     onClick={() => toggleAnswer(idx)}
-                    className={`self-start px-6 py-2 rounded-xl font-bold text-sm transition-all ${
+                    className={`self-start px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
                       showAnswers[idx] 
-                        ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400" 
-                        : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100"
+                        ? "bg-muted text-muted-foreground" 
+                        : "bg-primary text-primary-foreground hover:opacity-90 shadow-md shadow-primary/20"
                     }`}
                   >
                     {showAnswers[idx] ? "Hide Answer" : "Reveal Answer"}
@@ -200,9 +200,9 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                      <div className="mt-8 p-8 rounded-[2rem] bg-secondary/30 border border-secondary/20">
                         <div
-                          className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg"
+                          className="text-foreground leading-relaxed text-lg font-medium opacity-90"
                           dangerouslySetInnerHTML={{
                             __html: formatAnswer(q.answer || q.a || "No Answer"),
                           }}
@@ -214,8 +214,8 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
               </motion.div>
             ))
           ) : (
-            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-              <p className="text-slate-500 dark:text-slate-400 font-medium">No questions found. Try another file!</p>
+            <div className="text-center py-20 glass-card rounded-[3rem] border-2 border-dashed border-border">
+              <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">No questions found. Try another file!</p>
             </div>
           ))}
 
@@ -228,13 +228,13 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="p-8 glass-card rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                className="p-8 glass-card rounded-[2.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border border-border"
               >
-                <div className="flex items-start gap-4 mb-8">
-                  <span className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
+                <div className="flex items-start gap-5 mb-10">
+                  <span className="flex-shrink-0 w-12 h-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center font-black text-xl shadow-lg shadow-accent/20">
                     {idx + 1}
                   </span>
-                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 leading-tight pt-1">
+                  <h3 className="font-black text-2xl text-foreground leading-tight pt-1 tracking-tight">
                     {m.question || m.q || "No Question"}
                   </h3>
                 </div>
@@ -245,15 +245,15 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                     const isCorrect = opt === (m.answer || m.a);
                     const showFeedback = selectedMcqOptions[idx] !== undefined;
 
-                    let bgClass = "bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700";
+                    let bgClass = "bg-muted/50 border-border hover:border-primary/50 text-foreground";
                     if (showFeedback) {
                       if (isCorrect) {
-                        bgClass = "bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400";
+                        bgClass = "bg-green-500/10 border-green-500/50 text-green-700 dark:text-green-400 font-bold";
                       } else if (isSelected) {
-                        bgClass = "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400";
+                        bgClass = "bg-red-500/10 border-red-500/50 text-red-700 dark:text-red-400 font-bold";
                       }
                     } else if (isSelected) {
-                      bgClass = "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-400";
+                      bgClass = "bg-primary/10 border-primary/50 text-primary-foreground font-bold";
                     }
 
                     return (
@@ -261,15 +261,15 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                         key={i}
                         disabled={showFeedback}
                         onClick={() => handleMcqSelect(idx, opt)}
-                        className={`group p-5 border rounded-2xl flex items-center justify-between text-left transition-all transform active:scale-[0.98] ${bgClass}`}
+                        className={`group p-6 border rounded-2xl flex items-center justify-between text-left transition-all transform active:scale-[0.98] ${bgClass}`}
                       >
-                        <span className="font-semibold text-lg">{opt}</span>
+                        <span className="font-bold text-lg">{opt}</span>
                         
                         {showFeedback && (
                           isCorrect ? (
-                            <CheckCircle2 size={24} className="shrink-0" />
+                            <CheckCircle2 size={24} className="shrink-0 text-green-500" />
                           ) : isSelected ? (
-                            <Circle size={24} className="shrink-0" />
+                            <Circle size={24} className="shrink-0 text-red-500" />
                           ) : null
                         )}
                       </button>
@@ -282,13 +282,13 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-6 p-6 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50"
+                      className="mt-8 p-8 rounded-[2rem] bg-primary text-primary-foreground shadow-xl shadow-primary/20"
                     >
-                      <div className="flex items-center gap-3">
-                        <Lightbulb className="text-indigo-600 dark:text-indigo-400 shrink-0" size={20} />
-                        <p className="text-slate-700 dark:text-slate-300">
-                          <span className="font-bold text-slate-900 dark:text-slate-100">Correct Answer: </span>
-                          <span className="font-semibold text-indigo-700 dark:text-indigo-400">{m.answer || m.a}</span>
+                      <div className="flex items-center gap-4">
+                        <Lightbulb className="text-primary-foreground shrink-0" size={24} />
+                        <p className="font-medium">
+                          <span className="font-black uppercase tracking-widest text-xs block mb-1 text-primary-foreground/80">Correct Answer</span>
+                          <span className="text-xl font-black">{m.answer || m.a}</span>
                         </p>
                       </div>
                     </motion.div>
@@ -297,12 +297,12 @@ export function ResultsDisplay({ results, onBack }: ResultsDisplayProps) {
               </motion.div>
             ))
           ) : (
-            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-              <p className="text-slate-500 dark:text-slate-400 font-medium">No MCQs available. Try another file!</p>
-            </div>
-          ))}
+            <div className="text-center py-20 glass-card rounded-[3rem] border-2 border-dashed border-border">
+               <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">No MCQs available. Try another file!</p>
+             </div>
+           ))}
 
-      </div>
-    </div>
-  );
+       </div>
+     </div>
+   );
 }

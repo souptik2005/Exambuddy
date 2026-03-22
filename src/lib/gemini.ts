@@ -36,13 +36,13 @@ FORMAT:
 }
 `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let responseText = response.text();
-    console.log("AI TOPIC RESPONSE RAW:", responseText);
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let responseText = response.text();
+      console.log("AI TOPIC RESPONSE SUCCESSFUL");
 
-    responseText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+      responseText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
 
     try {
       const parsed = JSON.parse(responseText);

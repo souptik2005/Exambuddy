@@ -6,7 +6,6 @@ import { FileUploader } from "@/components/FileUploader";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { TopicExplorer } from "@/components/TopicExplorer";
 import { HistorySidebar } from "@/components/HistorySidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { ExamContent, HistoryItem } from "@/app/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCcw, FileText, Search, History, Menu, Sparkles, Zap } from "lucide-react";
@@ -74,37 +73,43 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 relative overflow-x-hidden">
+    <main className="min-h-screen bg-background pb-24 relative overflow-x-hidden">
+      {/* Background blobs for lively light feel */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-5%] left-[-5%] w-[50%] h-[50%] rounded-full bg-indigo-200/30 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] rounded-full bg-pink-200/30 blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-amber-100/30 blur-[100px]" />
+      </div>
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 z-30 px-6 py-5">
+      <header className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-md border-b border-border z-30 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <History size={20} />
             </button>
             
             <div className="flex items-center gap-2 cursor-pointer" onClick={handleReset}>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-50 uppercase">
-                EXAM<span className="text-slate-400 font-light">BUDDY</span><span className="text-indigo-600">.</span>
+              <h1 className="text-2xl font-black tracking-tight text-foreground uppercase">
+                EXAM<span className="text-indigo-600 dark:text-indigo-400 font-light">BUDDY</span><span className="text-indigo-600 dark:text-indigo-400">.</span>
               </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <ThemeToggle />
             {results ? (
               <button
                 onClick={handleReset}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-medium rounded-lg hover:opacity-90 transition-all active:scale-95 text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all active:scale-95 text-sm shadow-sm"
               >
                 <span>New Guide</span>
               </button>
             ) : (
               <div className="hidden md:flex items-center gap-2">
-                <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">v1.0</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-2 py-1 rounded-full border border-border">v1.1</span>
               </div>
             )}
           </div>
@@ -124,13 +129,13 @@ export default function Home() {
         {/* Navigation Tabs */}
         {!results && (
           <div className="max-w-md mx-auto px-4 flex justify-center">
-            <div className="p-1 rounded-xl glass-card flex gap-1 w-full">
+            <div className="p-1 rounded-2xl glass-card flex gap-1 w-full border border-border">
               <button
                 onClick={() => setActiveMode("pdf")}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
                   activeMode === "pdf"
-                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <FileText size={16} />
@@ -138,10 +143,10 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveMode("topic")}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
                   activeMode === "topic"
-                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Search size={16} />
@@ -158,7 +163,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3 }}
               className="pt-8"
             >
               <Hero />
@@ -178,18 +183,18 @@ export default function Home() {
             >
               <div className="max-w-4xl mx-auto px-4 flex flex-col items-center text-center gap-6 mb-12">
                 <div className="relative">
-                  <div className="absolute -inset-4 bg-indigo-500/20 rounded-full blur-2xl animate-pulse" />
-                  <div className="relative p-5 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] text-white shadow-2xl shadow-indigo-200 dark:shadow-none">
+                  <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+                  <div className="relative p-6 bg-primary text-primary-foreground rounded-[2rem] shadow-xl">
                     <FileText size={40} />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight leading-tight">
+                  <h2 className="text-3xl font-black text-foreground tracking-tight leading-tight">
                     {results.title || "Your Study Guide"}
                   </h2>
-                  <p className="text-base text-slate-500 dark:text-slate-400 max-w-lg font-medium">
-                    Boom! 💥 I've analyzed your notes and created this personalized study guide just for you.
+                  <p className="text-base text-muted-foreground max-w-lg font-medium">
+                    I've analyzed your notes and created this personalized study guide just for you.
                   </p>
                 </div>
               </div>
@@ -199,8 +204,8 @@ export default function Home() {
         </AnimatePresence>
       </div>
       
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-4 text-center text-slate-500 dark:text-slate-400 text-sm">
-        Built for Students with ❤️ and AI
+      <footer className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border py-4 text-center text-muted-foreground text-xs font-medium">
+        Built with ❤️ for better learning
       </footer>
     </main>
   );

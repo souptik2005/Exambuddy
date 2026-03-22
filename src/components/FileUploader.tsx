@@ -177,16 +177,16 @@ export function FileUploader({ onResults }: FileUploaderProps) {
         
         <div className="flex flex-col items-center justify-center text-center space-y-4">
           <div className={`p-5 rounded-full ${
-            file ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+            file ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
           }`}>
             {file ? <CheckCircle2 size={32} /> : <Upload size={32} />}
           </div>
           
           <div className="space-y-2">
-            <h4 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <h4 className="text-xl font-bold text-foreground">
               {file ? "Ready to process" : "Upload material"}
             </h4>
-            <p className="text-slate-600 dark:text-slate-400 text-sm max-w-xs mx-auto font-medium leading-relaxed">
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium leading-relaxed">
               {file ? `${file.name}` : "Drop your notes or photos here. I can read PDFs, JPGs, or PNG notes up to 10MB."}
             </p>
           </div>
@@ -202,18 +202,18 @@ export function FileUploader({ onResults }: FileUploaderProps) {
             className="mt-8 space-y-3"
           >
             <div className="flex justify-between items-end mb-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                 {status}
               </span>
-              <span className="text-xs font-bold text-slate-400">
+              <span className="text-xs font-bold text-muted-foreground">
                 {progress}%
               </span>
             </div>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+            <div className="w-full bg-muted rounded-full h-1 overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                className="bg-slate-900 dark:bg-slate-100 h-full rounded-full transition-all duration-300"
+                className="bg-primary h-full rounded-full transition-all duration-300"
               />
             </div>
           </motion.div>
@@ -226,7 +226,7 @@ export function FileUploader({ onResults }: FileUploaderProps) {
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className="mt-6 p-4 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl flex items-center gap-3 text-xs font-bold uppercase tracking-wide border border-red-100 dark:border-red-900/30"
+            className="mt-6 p-4 bg-accent/50 text-accent-foreground rounded-xl flex items-center gap-3 text-xs font-bold uppercase tracking-wide border border-accent"
           >
             <AlertCircle size={16} />
             <span>{error}</span>
@@ -237,7 +237,7 @@ export function FileUploader({ onResults }: FileUploaderProps) {
       <button
         onClick={handleUpload}
         disabled={!file || loading}
-        className="w-full mt-10 py-5 px-8 bg-slate-900 dark:bg-slate-100 disabled:opacity-30 text-white dark:text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:opacity-90 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
+        className="w-full mt-10 py-5 px-8 bg-primary disabled:opacity-30 text-primary-foreground rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:opacity-90 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
       >
         {loading ? (
           <>
