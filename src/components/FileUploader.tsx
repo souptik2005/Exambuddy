@@ -92,7 +92,7 @@ export function FileUploader({ onResults }: FileUploaderProps) {
                   canvas.height = viewport.height;
                   canvas.width = viewport.width;
 
-                  await page.render({ canvasContext: context!, viewport }).promise;
+                  await (page as any).render({ canvasContext: context!, viewport }).promise;
                   
                   const { data: { text } } = await worker.recognize(canvas);
                   fullText += text + "\n";
